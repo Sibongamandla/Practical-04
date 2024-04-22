@@ -1,4 +1,4 @@
-﻿@* Interface Enumarable = Enumarate or list (to ascertain the number of : count) *@
+﻿@* Interface Enumerable = Enumerate or list (to ascertain the number of : count) *@
 
 @model IEnumerable<S1L04.Models.PersonModel>
 
@@ -8,65 +8,46 @@
 
 <h2>List of People</h2>
 
-<!--Search input field-->
+<div>@Html.ActionLink("Create New Person", "CreatePerson", "People")</div>
+
+<!-- Search input field -->
 <input type="text" id="searchInput" placeholder="Search by First Name" />
 
 <table class="table table-bordered">
-
-    <tr style="background-color: darkgreen; color: white; ">
-        <th width="20%">
-            @Html.DisplayNameFor(model => model.StuNumber)
-        </th>
-        <th width="20%">
-            @Html.DisplayNameFor(model => model.FirstName)
-        </th>
-        <th width="20%">
-            @Html.DisplayNameFor(model => model.LastName)
-        </th>
-        <th class="text-center" width="20%">
-            @Html.DisplayNameFor(model => model.Email)
-        </th>
-        <th class="text-center" width="20%">
-            Delete
-        </th>
-    </tr>
-
-    @foreach (var item in Model) //For each person
-    {
-        <tr>
-            <td width="20%">
-                @Html.DisplayFor(modelItem => item.StuNumber)
-            </td>
-            <td width="20%">
-                @Html.DisplayFor(modelItem => item.FirstName)
-            </td>
-            <td width="20%">
-                @Html.DisplayFor(modelItem => item.LastName)
-            </td>
-            <td class="text-center" width="20%">
-                @Html.DisplayFor(modelItem => item.Email)
-            </td>
-            <td class="text-center">
-                <button type="button" class="btn btn-danger btn-sm" onclick="deletePerson('@item.StuNumber')">Delete</button>
-            </td>
-
-
+    <thead>
+        <tr style="background-color: darkgreen; color: white;">
+            <th width="20%">Student Number</th>
+            <th width="20%">First Name</th>
+            <th width="20%">Last Name</th>
+            <th class="text-center" width="20%">Email</th>
+            <th class="text-center" width="20%">Delete</th>
         </tr>
-    }
+    </thead>
+    <tbody>
+        @foreach (var item in Model) //For each person
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => item.StuNumber)</td>
+                <td>@Html.DisplayFor(modelItem => item.FirstName)</td>
+                <td>@Html.DisplayFor(modelItem => item.LastName)</td>
+                <td class="text-center">@Html.DisplayFor(modelItem => item.Email)</td>
+                <td class="text-center">
+                    <button type="button" class="btn btn-danger btn-sm" onclick="deletePerson('@item.StuNumber')">Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
 </table>
 
-@Html.ActionLink("Create New Person", "CreatePerson", "People", null, new { @class = "btn btn-primary" })
-
 <div class="row">
-    <!--Save button-->
-
-    <button class="col-12" type="button" id="btnSave">Save to Local Storage</button>
+    <!-- Save button -->
+    <button class="col-12 btn btn-primary" type="button" id="btnSave">Save to Local Storage</button>
 
     <!-- Load button -->
-    <button class="col-4" type="button" id="btnLoad">Load from Local Storage</button>
+    <button class="col-4 btn btn-primary" type="button" id="btnLoad">Load from Local Storage</button>
 
     <!-- Clear button -->
-    <button class="col-4" type="button" id="btnClear">Clear Local Storage</button>
+    <button class="col-4 btn btn-primary" type="button" id="btnClear">Clear Local Storage</button>
 </div>
 
 @section scripts{
@@ -98,15 +79,15 @@
                     });
 
                     // Detach matched rows and reattach them to the top of the table
-                    $('table tr:gt(0)').not(matchedRows).remove();
-                    matchedRows.forEach(function (row) {
-                        row.prependTo('table');
+                    $('table tbody tr').detach();
+                    $.each(matchedRows, function (index, row) {
+                        $('table tbody').append(row);
                     });
 
                     // Change text color of matched rows to red for 3 seconds
-                    matchedRows.forEach(function (row) {
+                    $.each(matchedRows, function (index, row) {
                         row.css('color', 'red');
-                        setTimeout(() => {
+                        setTimeout(function () {
                             row.css('color', '');
                         }, 3000);
                     });
@@ -129,9 +110,13 @@
                     // Clear existing data
                     $("table tbody").empty();
 
+                    // Append table headings with appropriate styles
+                    $("table thead").empty();
+                    $("table thead").append("<tr style='background-color: darkgreen; color: white;'><th width='20%'>Student Number</th><th width='20%'>First Name</th><th width='20%'>Last Name</th><th class='text-center' width='20%'>Email address</th><th class='text-center' width='20%'>Delete</th></tr>");
+
                     // Append loaded data to the table
                     $.each(data, function (index, item) {
-                        $("table tbody").append("<tr><td>" + item.StuNumber + "</td><td>" + item.FirstName + "</td><td>" + item.LastName + "</td><td>" + item.Email + "</td></tr>");
+                        $("table tbody").append("<tr><td>" + item.StuNumber + "</td><td>" + item.FirstName + "</td><td>" + item.LastName + "</td><td class='text-center'>" + item.Email + "</td><td class='text-center'><button type='button' class='btn btn-danger btn-sm' onclick='deletePerson(\"" + item.StuNumber + "\")'>Delete</button></td></tr>");
                     });
                 }
             });
@@ -142,6 +127,4 @@
             });
         });
     </script>
-
 }
-
