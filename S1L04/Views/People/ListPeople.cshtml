@@ -1,0 +1,147 @@
+﻿@* Interface Enumarable = Enumarate or list (to ascertain the number of : count) *@
+
+@model IEnumerable<S1L04.Models.PersonModel>
+
+@{
+    ViewBag.Title = "List of People";
+}
+
+<h2>List of People</h2>
+
+<!--Search input field-->
+<input type="text" id="searchInput" placeholder="Search by First Name" />
+
+<table class="table table-bordered">
+
+    <tr style="background-color: darkgreen; color: white; ">
+        <th width="20%">
+            @Html.DisplayNameFor(model => model.StuNumber)
+        </th>
+        <th width="20%">
+            @Html.DisplayNameFor(model => model.FirstName)
+        </th>
+        <th width="20%">
+            @Html.DisplayNameFor(model => model.LastName)
+        </th>
+        <th class="text-center" width="20%">
+            @Html.DisplayNameFor(model => model.Email)
+        </th>
+        <th class="text-center" width="20%">
+            Delete
+        </th>
+    </tr>
+
+    @foreach (var item in Model) //For each person
+    {
+        <tr>
+            <td width="20%">
+                @Html.DisplayFor(modelItem => item.StuNumber)
+            </td>
+            <td width="20%">
+                @Html.DisplayFor(modelItem => item.FirstName)
+            </td>
+            <td width="20%">
+                @Html.DisplayFor(modelItem => item.LastName)
+            </td>
+            <td class="text-center" width="20%">
+                @Html.DisplayFor(modelItem => item.Email)
+            </td>
+            <td class="text-center">
+                <button type="button" class="btn btn-danger btn-sm" onclick="deletePerson('@item.StuNumber')">Delete</button>
+            </td>
+
+
+        </tr>
+    }
+</table>
+
+@Html.ActionLink("Create New Person", "CreatePerson", "People", null, new { @class = "btn btn-primary" })
+
+<div class="row">
+    <!--Save button-->
+
+    <button class="col-12" type="button" id="btnSave">Save to Local Storage</button>
+
+    <!-- Load button -->
+    <button class="col-4" type="button" id="btnLoad">Load from Local Storage</button>
+
+    <!-- Clear button -->
+    <button class="col-4" type="button" id="btnClear">Clear Local Storage</button>
+</div>
+
+@section scripts{
+    <script>
+        // Function to delete a person
+        function deletePerson(studentNumber) {
+            // Confirm deletion
+            if (confirm("Are you sure you want to delete this person?")) {
+                // Remove the row from the table
+                $("tr:contains('" + studentNumber + "')").remove();
+            }
+        }
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            $('#searchInput').on('keyup', function () {
+                var searchText = $(this).val().trim();
+                var matchedRows = [];
+                if (searchText === '') {
+                    // Reload the page when search input is empty
+                    location.reload();
+                } else {
+                    $('table tr:gt(0)').each(function () {
+                        var firstName = $(this).find('td:eq(1)').text().toLowerCase();
+                        if (firstName.includes(searchText.toLowerCase())) {
+                            matchedRows.push($(this));
+                        }
+                    });
+
+                    // Detach matched rows and reattach them to the top of the table
+                    $('table tr:gt(0)').not(matchedRows).remove();
+                    matchedRows.forEach(function (row) {
+                        row.prependTo('table');
+                    });
+
+                    // Change text color of matched rows to red for 3 seconds
+                    matchedRows.forEach(function (row) {
+                        row.css('color', 'red');
+                        setTimeout(() => {
+                            row.css('color', '');
+                        }, 3000);
+                    });
+                }
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            // Save data to local storage
+            $("#btnSave").click(function () {
+                localStorage.setItem("peopleData", JSON.stringify(@Html.Raw(Json.Encode(Model))));
+            });
+
+            // Load data from local storage
+            $("#btnLoad").click(function () {
+                var data = JSON.parse(localStorage.getItem("peopleData"));
+                if (data) {
+                    // Clear existing data
+                    $("table tbody").empty();
+
+                    // Append loaded data to the table
+                    $.each(data, function (index, item) {
+                        $("table tbody").append("<tr><td>" + item.StuNumber + "</td><td>" + item.FirstName + "</td><td>" + item.LastName + "</td><td>" + item.Email + "</td></tr>");
+                    });
+                }
+            });
+
+            // Clear local storage
+            $("#btnClear").click(function () {
+                localStorage.removeItem("peopleData");
+            });
+        });
+    </script>
+
+}
+
